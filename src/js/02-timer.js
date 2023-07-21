@@ -1,6 +1,13 @@
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
+import { Notify } from 'notiflix/build/notiflix-notify-aio';
+// ? глобально прописал опции
+Notify.init({ 
+      width: '300px',
+      timeout: 3000,
+      position: 'center-center',});
 
+let date;
 const refs = {
     inputForDate : document.querySelector("#datetime-picker"),
     btnStart : document.querySelector("[data-start]"),
@@ -9,9 +16,10 @@ const refs = {
     minutes : document.querySelector("[data-minutes]"),
     seconds : document.querySelector("[data-seconds]"),
 } 
-refs.btnStart.setAttribute("disabled", true)
+refs.btnStart.addEventListener("click", onBtnClick)
 
-
+refs.btnStart.setAttribute("disabled", true) //скрываем кнопку
+// ?    ====    ====    ====    ====    ====    ====    ====    ====
 const fp = flatpickr(refs.inputForDate, {
     enableTime: true,
     time_24hr: true,
@@ -19,36 +27,43 @@ const fp = flatpickr(refs.inputForDate, {
     minuteIncrement: 1,
     onClose(selectedDates) {
 
-refs.btnStart.addEventListener("click", onBtnClick)
 const selectedDate = selectedDates[0].getTime(); // выбранное время
 const timeToCount = selectedDate - Date.now(); // выбранное - текущее время 
 
+//  проверяю на валидную дату
+
 if ( timeToCount< 0 ){
-    alert("Please choose a date in the future");
-} else if (timeToCount> 0 ){
-refs.btnStart.removeAttribute("disabled");
+      Notify.failure('Please choose a date in the future');
+      refs.btnStart.setAttribute("disabled", true)  
+} else if (timeToCount > 0 ){
+    date = selectedDate; // !если дата валидная вытянул ее в глобальный скоп
+      refs.btnStart.removeAttribute("disabled");
 }
+},
+});
+  function onBtnClick (event) {
 
-function onBtnClick (event) {
- const intervalId = setInterval(() => {
-    const time = (Date.now() - selectedDate)* (-1) 
-    console.log(time);
-  if (!time){
-    alert("Timer is finish");
-    clearInterval(intervalId);
-    return
-  } 
-    const timeS= convertMs(time)
-    const timeWithZero = addLeadingZero(timeS);
-    updateTime(timeWithZero);
-  }, 1000)
+  refs.inputForDate.setAttribute("disabled", true)  // скрыл календарь
 
-  refs.btnStart.setAttribute("disabled", true)
-}
-
-    },
-  });
-
+  //? запустил интервал  ====    ====    ====    ====    ====    ====
+  const intervalId = setInterval(() => {
+      const time = (Date.now() - date)* (-1) 
+      // проверяю аймер на истечение 
+     if (time < 0){
+       refs.inputForDate.removeAttribute("disabled");
+       Notify.success('Time is up and you are still alive 🥳🥳');
+       //alert("Timer is finish");
+       clearInterval(intervalId);
+       return
+     } 
+       const timeS= convertMs(time) // конвертирую в дату
+       const timeWithZero = addLeadingZero(timeS); // добавляю НОЛЬ к числу, перевожу в строку
+       updateTime(timeWithZero); // отрисовываю контент
+     }, 1000)
+   
+     refs.btnStart.setAttribute("disabled", true)
+   }
+  // ?    ====    ====    ====    ====    ====    ====    ====    ====
   function convertMs(ms) {
     // Number of milliseconds per unit of time
     const second = 1000;
