@@ -33,7 +33,7 @@ function onBtnClick (event) {
  const intervalId = setInterval(() => {
     const time = (Date.now() - selectedDate)* (-1) 
     console.log(time);
-  if (time < 0){
+  if (!time){
     alert("Timer is finish");
     clearInterval(intervalId);
     return
