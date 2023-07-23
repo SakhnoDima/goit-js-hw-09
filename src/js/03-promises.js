@@ -4,19 +4,19 @@ Notify.init({
       width: '300px',
       timeout: 3000,
       position: 'center-center',});
+
 const refs = {
   form : document.querySelector(".form")
 }
 let number = 1;
 refs.form.addEventListener("submit", onSubmit)
 
-
 function onSubmit(event){
   event.preventDefault()
 
   const { delay, step, amount } = event.currentTarget.elements;
   let delayValue = Number(delay.value);
-  const stePp = Number(step.value);
+  const stepValue = Number(step.value);
 
   for (let i = 0; i < amount.value; i+=1) {
     
@@ -25,9 +25,10 @@ function onSubmit(event){
   .catch(({position, delay}) => 
   Notify.failure(`❌ Rejected promise ${position} in ${delay}ms`));
 
-  delayValue+=stePp;
+  delayValue+=stepValue;
   number+=1;
   }
+  
   number = 1;
 }
 
